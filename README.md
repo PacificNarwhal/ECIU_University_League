@@ -1,6 +1,6 @@
 # A eciu_university_league Flet app
 
-An example of a minimal Flet app.
+An example of a counter Flet app.
 
 To run the app:
 
