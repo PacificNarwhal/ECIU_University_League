@@ -1,6 +1,6 @@
 import flet as ft
 
-class SampleRod(ft.BarChartRod):
+class ColoredBar(ft.BarChartRod):
     def __init__(self, y: float, hovered: bool = False, width: int = 30):
         super().__init__()
         self.hovered = hovered
@@ -9,7 +9,7 @@ class SampleRod(ft.BarChartRod):
 
     def _before_build_command(self):
         self.to_y = self.y  if self.hovered else self.y
-        self.color = ft.colors.BLACK if self.hovered else ft.colors.WHITE
+        self.color = ft.colors.GREEN_200 if self.hovered else ft.colors.WHITE
         self.border_side = (
             ft.BorderSide(width=1, color=ft.colors.GREEN_400)
             if self.hovered

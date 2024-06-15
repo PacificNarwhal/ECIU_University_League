@@ -1,6 +1,6 @@
 import flet as ft
 from file_uploader import FileUploader
-from chart_rod import ColoredBar
+from charts import ColoredBar
 import random
 
 def main(page: ft.Page):
