@@ -56,6 +56,17 @@ def main(page: ft.Page):
         interactive=True,
     )
     
+    # chart_container = ft.Container(
+    #     chart,
+    #     bgcolor = ft.colors.BLUE_50,
+    #     padding=20,
+    #     border_radius=20,
+    #     expand=True,
+    #     shadow=ft.BoxShadow(blur_radius=10, spread_radius=5, color=ft.colors.BLACK12)
+    # )
+    
+    # chart_title = ft.Text("Current standings", size=24, weight=ft.FontWeight.BOLD)
+    
     
     def generateRandomData(e):
         # increase a random universities km in standings data by a random number
@@ -90,20 +101,23 @@ def main(page: ft.Page):
 
     standings_table = create_standings_table(standings_data)
     
-    
-    def upload_activity(e):
-        print("Activity uploaded:", txt_university.value, txt_km.value)
-        txt_university.value = ""
-        txt_km.value = ""
-        page.update()
+
     
     # Make sure that the page layout and parent elements are sized correctly
     page.add(
         ft.Text("Current Standings", size=24, weight=ft.FontWeight.BOLD),
         
         ft.Container(
-            chart, bgcolor=ft.colors.GREEN_200, padding=10, border_radius=50, expand=True, 
+            chart, 
+            bgcolor=ft.colors.GREEN_200, 
+            padding=10, 
+            border_radius=50, 
+            expand=True, 
+            shadow=ft.BoxShadow(blur_radius=10, spread_radius=5, color=ft.colors.BLACK12)
         ),
+        
+        
+        
         
         ft.Column(
             [
@@ -117,6 +131,7 @@ def main(page: ft.Page):
     )
     
     file_uploader = FileUploader(page)
+    
 
 # Start the app
 ft.app(main)
