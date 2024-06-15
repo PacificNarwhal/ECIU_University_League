@@ -4,6 +4,7 @@ from chart_rod import ColoredBar
 import random
 
 def main(page: ft.Page):
+    global chart
     
     standings_data = [
         {"university": "Group 1", "total_km": 1500},
@@ -37,7 +38,7 @@ def main(page: ft.Page):
         )
         return chart
 
-    #chart = create_chart(standings_data)
+    # chart = create_chart(standings_data)
 
     def generateRandomData(e):
         random_index = random.randint(0, len(standings_data) - 1)
@@ -45,7 +46,7 @@ def main(page: ft.Page):
         standings_data[random_index]["total_km"] += random_km
         chart.bar_groups[random_index].bar_rods[0].value = standings_data[random_index]["total_km"]
 
-        # Update the chart
+        # Doesnt work
         chart.update()
 
         # Recreate the table with updated data
@@ -54,6 +55,10 @@ def main(page: ft.Page):
         table_container.controls.clear()
         table_container.controls.append(updated_table)
         table_container.update()
+        
+        
+
+
 
     def create_standings_table(data):
         rows = [

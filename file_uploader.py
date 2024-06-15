@@ -1,4 +1,5 @@
 from typing import Dict
+from image_analysis import ImageAnalyzer
 import flet
 from flet import (
     Column,
@@ -44,15 +45,22 @@ class FileUploader:
         )
 
     def file_picker_result(self, e: FilePickerResultEvent):
-        self.upload_button.current.disabled = True if e.files is None else False
+        self.upload_button.current.disabled = True if not e.files else False
         self.prog_bars.clear()
         self.files.current.controls.clear()
-        if e.files is not None:
+        if e.files:
             for f in e.files:
                 prog = ProgressRing(value=0, bgcolor="#eeeeee", width=20, height=20)
                 self.prog_bars[f.name] = prog
-                self.files.current.controls.append(Row([prog, Text(f.name)]))
-        self.page.update()
+                file_row = Row([prog, Text(f.name)])
+                self.files.current.controls.append(file_row)
+                if f.name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                    self.analyze_image(f)
+            self.page.update()
+
+    def analyze_image(self, file):
+        # Placeholder for image analysis function call
+        print(f"Analyzing image: {file.name}")
 
     def on_upload_progress(self, e: FilePickerUploadEvent):
         self.prog_bars[e.file_name].value = e.progress
