@@ -13,12 +13,13 @@ def main(page: ft.Page):
         {"university": "Group 4", "total_km": 1200},
         {"university": "Group 5", "total_km": 1100},
     ]
-    
-    def on_chart_event(e: ft.BarChartEvent):
-        for group_index, group in enumerate(chart.bar_groups):
-            for rod_index, rod in enumerate(group.bar_rods):
-                rod.hovered = e.group_index == group_index and e.rod_index == rod_index
-        chart.update()
+
+    # Doesnt work anymore for some reason - doesnt contribute to functionality     
+    # def on_chart_event(e: ft.BarChartEvent):
+    #     for group_index, group in enumerate(chart.bar_groups):
+    #         for rod_index, rod in enumerate(group.bar_rods):
+    #             rod.hovered = e.group_index == group_index and e.rod_index == rod_index
+    #     chart.update()
 
     def create_chart(standings_data):
         chart = ft.BarChart(
@@ -33,21 +34,30 @@ def main(page: ft.Page):
                     ft.ChartAxisLabel(value=index, label=ft.Text(data["university"])) for index, data in enumerate(standings_data)
                 ],
             ),
-            on_chart_event=on_chart_event,
+            #on_chart_event=on_chart_event,
             interactive=True,
         )
         return chart
 
     # chart = create_chart(standings_data)
+    chart_container = ft.Column([create_chart(standings_data)])
 
     def generateRandomData(e):
         random_index = random.randint(0, len(standings_data) - 1)
         random_km = random.randint(1, 42)
         standings_data[random_index]["total_km"] += random_km
-        chart.bar_groups[random_index].bar_rods[0].value = standings_data[random_index]["total_km"]
+        #chart.bar_groups[random_index].bar_rods[0].value = standings_data[random_index]["total_km"]
 
         # Doesnt work
-        chart.update()
+        #chart.update()
+        
+        # REcreate the chart with new data
+        updated_chart = create_chart(standings_data)
+        # Replace the old chart with the new one
+        chart_container.controls.clear()
+        chart_container.controls.append(updated_chart)
+        chart_container.update()
+        
 
         # Recreate the table with updated data
         updated_table = create_standings_table(standings_data)
@@ -85,7 +95,7 @@ def main(page: ft.Page):
     table_container = ft.Column([create_standings_table(standings_data)])
 
 
-    chart = create_chart(standings_data)
+    #chart = create_chart(standings_data)
     page.add(
         
         # ft.Text("University League", size=35, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER), # for some reason doesnt center
@@ -101,9 +111,9 @@ def main(page: ft.Page):
         
         ft.Column(
             [
-                ft.Text("University League", size=35, weight=ft.FontWeight.BOLD), # for some reason doesnt center
+                ft.Text("University League", size=35, weight=ft.FontWeight.BOLD), 
                 ft.Text("Current Standings", size=24, weight=ft.FontWeight.BOLD),
-                chart,
+                chart_container,
                 ft.Text("Table", size=24, weight=ft.FontWeight.BOLD),
                 table_container,
                 ft.ElevatedButton(text="Generate Random Data", on_click=generateRandomData),
@@ -114,7 +124,7 @@ def main(page: ft.Page):
         )       
     )
 
-    file_uploader = FileUploader(page)
+    #file_uploader = FileUploader(page)
 
 # Start the app
 ft.app(main)
