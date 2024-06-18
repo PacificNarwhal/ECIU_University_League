@@ -9,7 +9,7 @@ class ColoredBar(ft.BarChartRod):
 
     def _before_build_command(self):
         self.to_y = self.y  if self.hovered else self.y
-        self.color = ft.colors.GREEN_200 if self.hovered else ft.colors.GREEN_50
+        self.color = ft.colors.GREEN_200 if self.hovered else ft.colors.GREEN_200 #ft.colors.GREEN_50
         self.border_side = (
             ft.BorderSide(width=1, color=ft.colors.GREEN_400)
             if self.hovered
