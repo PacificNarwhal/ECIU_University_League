@@ -40,6 +40,7 @@ class DataVisualization:
         ]
         self.chart_container = ft.Column()
         self.table_container = ft.Column()
+        self.notification_field = ft.TextField(read_only=True, visible=False, width=300)
         self.init_ui()
 
     def init_ui(self):
@@ -49,6 +50,7 @@ class DataVisualization:
             self.chart_container,
             ft.Text("Table", size=24, weight=ft.FontWeight.BOLD),
             self.table_container,
+            self.notification_field,
             ft.ElevatedButton(text="Generate Random Data", on_click=self.generate_random_data)
         )
         self.update_chart()
@@ -94,14 +96,33 @@ class DataVisualization:
 
     def generate_random_data(self, event):
         index = random.randint(0, len(self.standings_data) - 1)
-        self.standings_data[index]["total_km"] += random.randint(1, 42)
+        distance = random.randint(1, 42)
+        self.add_run(distance, index)
+        
+        
+    def hide_notification(self):
+        self.notification_field.visible = False  # Hide the TextField
+        self.page.update()  # Update the UI
+        
+    def add_run(self, distance, index):
+        self.standings_data[index]["total_km"] += distance
+        
+        team_name = self.standings_data[index]["university"]
+        notification_text = f"Added {distance} km to {team_name}."
+        self.notification_field.value = notification_text  # Set the text
+        self.notification_field.visible = True  # Make sure the field is visible
+    
         self.update_chart()
         self.update_table()
         
+        
+        
 
 class FileUploader:
-    def __init__(self, page: ft.Page):
+    distance = 0
+    def __init__(self, page: ft.Page, data_visualization: DataVisualization):
         self.page = page
+        self.data_visualization = data_visualization
         self.init_ui()
 
     def init_ui(self):
@@ -116,7 +137,7 @@ class FileUploader:
         self.page.overlay.append(self.file_picker)
         self.page.add(
             ft.ElevatedButton(
-                "Select files...",
+                "Upload activity",
                 icon=ft.icons.FOLDER_OPEN,
                 on_click=lambda _: self.file_picker.pick_files(allow_multiple=True),
             ),
@@ -127,6 +148,7 @@ class FileUploader:
                 icon=ft.icons.UPLOAD,
                 on_click=self.upload_files,
                 disabled=True,
+                visible=False
             ),
         )
 
@@ -149,6 +171,9 @@ class FileUploader:
         
         running_record=extract_running_record(file.name)
         print("Running Record: ", running_record)
+        distance = float(running_record['Distance'].split()[0])
+        print("Found distance: ", distance)
+        self.data_visualization.add_run(distance, 0)
         
 
     def on_upload_progress(self, e: ft.FilePickerUploadEvent):
@@ -176,6 +201,7 @@ def main(page: ft.Page):
 
     # Create instances of the functionalities
     data_visualization = DataVisualization(page)
-    file_uploader = FileUploader(page)
+    file_uploader = FileUploader(page, data_visualization)
+    
 
 ft.app(main)
