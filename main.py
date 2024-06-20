@@ -1,5 +1,7 @@
 import flet as ft
 import random
+from typing import Dict
+from get_health_records import extract_running_record
 
 
 class ColoredBar(ft.BarChartRod):
@@ -79,7 +81,6 @@ class DataVisualization:
         return chart
     
 
-
     def update_table(self):
         table = self.create_standings_table()
         self.table_container.controls.clear()
@@ -104,30 +105,70 @@ class FileUploader:
         self.init_ui()
 
     def init_ui(self):
-        self.files = ft.Column()
-        select_files_button = ft.ElevatedButton("Select files...", icon=ft.icons.FOLDER_OPEN, on_click=self.pick_files)
-        self.upload_button = ft.ElevatedButton("Upload", icon=ft.icons.UPLOAD, on_click=self.upload_files, disabled=True)
-        self.page.add(select_files_button, self.files, self.upload_button)
+        self.prog_bars: Dict[str, ft.ProgressRing] = {}
+        self.files = ft.Ref[ft.Column]()
+        self.upload_button = ft.Ref[ft.ElevatedButton]()
 
-    def pick_files(self, e):
-        file_picker = ft.FilePicker(allow_multiple=True, on_result=self.on_file_selection, on_upload=self.on_upload_progress)
-        self.page.overlay.append(file_picker)
+        self.file_picker = ft.FilePicker(
+            on_result=self.file_picker_result, on_upload=self.on_upload_progress
+        )
 
-    def on_file_selection(self, event: ft.FilePickerResultEvent):
-        self.upload_button.disabled = not event.files
-        self.files.controls.clear()
-        for file in event.files:
-            progress = ft.ProgressRing(value=0)
-            self.files.controls.append(ft.Row([progress, ft.Text(file.name)]))
+        self.page.overlay.append(self.file_picker)
+        self.page.add(
+            ft.ElevatedButton(
+                "Select files...",
+                icon=ft.icons.FOLDER_OPEN,
+                on_click=lambda _: self.file_picker.pick_files(allow_multiple=True),
+            ),
+            ft.Column(ref=self.files),
+            ft.ElevatedButton(
+                "Upload",
+                ref=self.upload_button,
+                icon=ft.icons.UPLOAD,
+                on_click=self.upload_files,
+                disabled=True,
+            ),
+        )
 
-    def on_upload_progress(self, event: ft.FilePickerUploadEvent):
-        # Update progress bar logic here
-        pass
+    def file_picker_result(self, e: ft.FilePickerResultEvent):
+        self.upload_button.current.disabled = True if not e.files else False
+        self.prog_bars.clear()
+        self.files.current.controls.clear()
+        if e.files:
+            for f in e.files:
+                prog = ft.ProgressRing(value=0, bgcolor="#eeeeee", width=20, height=20)
+                self.prog_bars[f.name] = prog
+                file_row = ft.Row([prog, ft.Text(f.name)])
+                self.files.current.controls.append(file_row)
+                if f.name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                    self.analyze_image(f)
+            self.page.update()
+
+    def analyze_image(self, file):
+        print(f"Analyzing image: {file.name}")
+        
+        running_record=extract_running_record(file.name)
+        print("Running Record: ", running_record)
+        
+
+    def on_upload_progress(self, e: ft.FilePickerUploadEvent):
+        self.prog_bars[e.file_name].value = e.progress
+        self.prog_bars[e.file_name].update()
 
     def upload_files(self, e):
-        # Upload files logic here
-        pass
-    
+        uf = []
+        if self.file_picker.result is not None and self.file_picker.result.files is not None:
+            for f in self.file_picker.result.files:
+                uf.append(
+                    f.name
+                    #For online version
+                    # ft.FilePickerUploadFile(
+                    #     f.name,
+                    #     upload_url=self.page.get_upload_url(f.name, 600),
+                    # )
+                )
+            self.file_picker.upload(uf)
+            print(uf)
 
 def main(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
